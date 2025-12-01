@@ -1,0 +1,189 @@
+# Azure Pipeline for NetHealth RCM-DB Test Automation
+# Supports multiple environments and test types
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - release/*
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+variables:
+  NODE_VERSION: '18.x'
+  PLAYWRIGHT_VERSION: 'latest'
+
+stages:
+  # ============================================
+  # Stage 1: Quick Validation (Smoke Tests)
+  # ============================================
+  - stage: QuickValidation
+    displayName: 'Quick Validation - Smoke Tests'
+    jobs:
+      - job: SmokeTests
+        displayName: 'Run Smoke Tests'
+        pool:
+          vmImage: 'ubuntu-latest'
+        
+        steps:
+          - task: NodeTool@0
+            displayName: 'Install Node.js'
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: |
+              npm ci
+            displayName: 'Install Dependencies'
+
+          - script: |
+              npx playwright install --with-deps
+            displayName: 'Install Playwright Browsers'
+
+          - script: |
+              npx playwright test --grep @smoke --reporter=html,junit
+            displayName: 'Run Smoke Tests'
+            env:
+              ENV: dev
+
+          - task: PublishTestResults@2
+            displayName: 'Publish Smoke Test Results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/junit.xml'
+              testRunTitle: 'Smoke Tests'
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish HTML Report'
+            condition: succeededOrFailed()
+            inputs:
+              targetPath: 'playwright-report'
+              artifact: 'smoke-test-report'
+
+  # ============================================
+  # Stage 2: Comprehensive Validation
+  # ============================================
+  - stage: ComprehensiveValidation
+    displayName: 'Comprehensive Validation - Full Test Suite'
+    dependsOn: QuickValidation
+    condition: succeeded()
+    
+    jobs:
+      # Regression Tests
+      - job: RegressionTests
+        displayName: 'Run Regression Tests'
+        pool:
+          vmImage: 'ubuntu-latest'
+        timeoutInMinutes: 60
+        
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: npm ci
+            displayName: 'Install Dependencies'
+
+          - script: npx playwright install --with-deps
+            displayName: 'Install Browsers'
+
+          - script: |
+              npx playwright test --grep @regression --grep-invert @smoke --reporter=html,junit
+            displayName: 'Run Regression Tests'
+            env:
+              ENV: dev
+
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/junit.xml'
+              testRunTitle: 'Regression Tests'
+
+          - task: PublishPipelineArtifact@1
+            condition: succeededOrFailed()
+            inputs:
+              targetPath: 'playwright-report'
+              artifact: 'regression-test-report'
+
+      # API Tests
+      - job: APITests
+        displayName: 'Run API Tests'
+        pool:
+          vmImage: 'ubuntu-latest'
+        
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: npm ci
+            displayName: 'Install Dependencies'
+
+          - script: |
+              npx playwright test --grep @api --reporter=html,junit
+            displayName: 'Run API Tests'
+            env:
+              ENV: dev
+
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/junit.xml'
+              testRunTitle: 'API Tests'
+
+          - task: PublishPipelineArtifact@1
+            condition: succeededOrFailed()
+            inputs:
+              targetPath: 'playwright-report'
+              artifact: 'api-test-report'
+
+  # ============================================
+  # Stage 3: Staging Environment Tests
+  # ============================================
+  - stage: StagingValidation
+    displayName: 'Staging Environment Validation'
+    dependsOn: ComprehensiveValidation
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    
+    jobs:
+      - job: StagingTests
+        displayName: 'Run Tests on Staging'
+        pool:
+          vmImage: 'ubuntu-latest'
+        
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: npm ci
+            displayName: 'Install Dependencies'
+
+          - script: npx playwright install --with-deps
+            displayName: 'Install Browsers'
+
+          - script: |
+              npx playwright test --grep "@smoke|@critical" --reporter=html,junit
+            displayName: 'Run Staging Tests'
+            env:
+              ENV: staging
+
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/junit.xml'
+              testRunTitle: 'Staging Tests'
+
+          - task: PublishPipelineArtifact@1
+            condition: succeededOrFailed()
+            inputs:
+              targetPath: 'playwright-report'
+              artifact: 'staging-test-report'
