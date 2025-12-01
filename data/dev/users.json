@@ -1,0 +1,32 @@
+{
+  "users": {
+    "testUser": {
+      "username": "Optima.RambabuN",
+      "firstName": "Rambabu",
+      "lastName": "N",
+      "role": "Standard User"
+    },
+    "admin": {
+      "username": "admin@nethealth.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "role": "Administrator"
+    }
+  },
+  "patients": [
+    {
+      "mrn": "MRN-001",
+      "firstName": "John",
+      "lastName": "Doe",
+      "dob": "1980-01-15",
+      "gender": "Male"
+    },
+    {
+      "mrn": "MRN-002",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "dob": "1992-05-22",
+      "gender": "Female"
+    }
+  ]
+}

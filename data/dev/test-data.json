@@ -1,0 +1,19 @@
+{
+  "billingRecords": {
+    "valid": {
+      "invoiceNumber": "INV-12345",
+      "amount": 250.00,
+      "serviceDate": "2025-01-15",
+      "status": "Pending"
+    }
+  },
+  "claims": {
+    "valid": {
+      "claimId": "CLM-98765",
+      "diagnosisCode": "M54.5",
+      "procedureCode": "99213",
+      "amount": 150.00,
+      "status": "Submitted"
+    }
+  }
+}

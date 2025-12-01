@@ -1,0 +1,83 @@
+{
+  "patients": {
+    "agencies": [
+      {
+        "name": "Main Agency",
+        "branches": ["Branch 1", "Branch 2", "Branch 3"]
+      },
+      {
+        "name": "Secondary Agency",
+        "branches": ["North Branch", "South Branch"]
+      }
+    ],
+    "searchCriteria": {
+      "lastNames": ["Smith", "Johnson", "Williams", "Brown", "Jones"],
+      "holdFRPStatements": ["All", "Yes", "No"]
+    },
+    "samplePatients": [
+      {
+        "accountNo": "ACC-001",
+        "firstName": "John",
+        "lastName": "Doe",
+        "entity": "Main Clinic",
+        "mrn": "MRN-12345"
+      },
+      {
+        "accountNo": "ACC-002",
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "entity": "Outpatient Center",
+        "mrn": "MRN-67890"
+      }
+    ]
+  },
+  "revenue": {
+    "divisions": ["All Divisions", "North Division", "South Division", "East Division", "West Division"],
+    "regions": ["Region 1", "Region 2", "Region 3"],
+    "areas": ["Area A", "Area B", "Area C"],
+    "entities": ["Main Clinic", "Outpatient Center", "Specialty Clinic"],
+    "jobLimits": [10, 25, 50, 100],
+    "defaultDateRange": {
+      "servicesFromDaysAgo": 30,
+      "servicesToDaysAgo": 0
+    }
+  },
+  "claims": {
+    "divisions": ["All Divisions", "North Division", "South Division"],
+    "payingAgencies": [
+      {
+        "name": "Medicare",
+        "plans": ["Part A", "Part B", "Advantage"]
+      },
+      {
+        "name": "Medicaid",
+        "plans": ["Standard", "Managed Care"]
+      },
+      {
+        "name": "Private Insurance",
+        "plans": ["PPO", "HMO", "EPO"]
+      }
+    ],
+    "jobLimits": [10, 25, 50, 100],
+    "defaultDateRange": {
+      "servicesFromDaysAgo": 30,
+      "servicesToDaysAgo": 0
+    },
+    "batchOptions": {
+      "requireMonthEndClose": false,
+      "requireAllChargesPosted": true
+    }
+  },
+  "common": {
+    "dateFormats": {
+      "display": "MM/DD/YYYY",
+      "api": "YYYY-MM-DD"
+    },
+    "timeouts": {
+      "shortWait": 2000,
+      "mediumWait": 5000,
+      "longWait": 10000,
+      "jobCompletion": 60000
+    }
+  }
+}
