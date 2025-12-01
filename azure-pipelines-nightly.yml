@@ -1,0 +1,65 @@
+# Nightly Full Regression Suite for NetHealth RCM-DB
+
+schedules:
+  - cron: "0 2 * * *" # Run at 2 AM UTC daily
+    displayName: 'Nightly Regression'
+    branches:
+      include:
+        - main
+    always: true
+
+trigger: none
+pr: none
+
+variables:
+  NODE_VERSION: '18.x'
+
+stages:
+  - stage: NightlyRegression
+    displayName: 'Nightly Full Regression'
+    jobs:
+      - job: FullRegressionSuite
+        displayName: 'Run Complete Test Suite'
+        pool:
+          vmImage: 'ubuntu-latest'
+        timeoutInMinutes: 120
+        
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: npm ci
+            displayName: 'Install Dependencies'
+
+          - script: npx playwright install --with-deps
+            displayName: 'Install Browsers'
+
+          - script: |
+              npx playwright test --reporter=html,junit
+            displayName: 'Run All Tests'
+            env:
+              ENV: dev
+
+          - task: PublishTestResults@2
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/junit.xml'
+              testRunTitle: 'Nightly Regression Tests'
+
+          - task: PublishPipelineArtifact@1
+            condition: succeededOrFailed()
+            inputs:
+              targetPath: 'playwright-report'
+              artifact: 'nightly-test-report'
+
+          # Send notification on failure (configure email task)
+          - task: PowerShell@2
+            condition: failed()
+            displayName: 'Send Failure Notification'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Write-Host "Nightly tests failed. Sending notification..."
+                # Add notification logic here
