@@ -55,4 +55,5 @@ test('Search Static Patient and read Account No', async ({ page }) => {
   // Read and store the text from the gridcell
   const accountNo = await page.getByRole('gridcell', { name: '11356' }).textContent();
   console.log('Account No:', accountNo);
+  console.log('Patient Search completed successfully.');
 });
