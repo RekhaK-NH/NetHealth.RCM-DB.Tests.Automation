@@ -1,0 +1,38 @@
+# Node modules
+node_modules/
+
+# Test results
+test-results/
+playwright-report/
+playwright/.cache/
+screenshots/
+
+# Environment variables
+.env
+
+# Authentication states (contains sensitive data)
+auth/*.json
+!auth/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+
+# Allure reports
+allure-results/
+allure-report/
